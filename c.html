@@ -26,22 +26,35 @@ a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 </div>
 <script>
 (function(){
+  var q=location.search||'';var DBG=/[?&]d=1/.test(q),FAST=/[?&]fast=1/.test(q);
   var d=(location.hash||'').replace(/\D/g,'');
   var n=document.getElementById('n'),go=document.getElementById('go'),m=document.getElementById('m');
+  var logEl=null,t0=Date.now();
+  function log(x){if(!DBG)return;if(!logEl){logEl=document.createElement('pre');logEl.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;max-height:38vh;overflow:auto;margin:0;padding:8px;border-radius:10px;background:#000;color:#9f9;font:12px/1.35 monospace;white-space:pre-wrap';document.body.appendChild(logEl)}
+    logEl.textContent+=((Date.now()-t0)/1000).toFixed(1)+'s '+x+'\n'}
   if(d.length===12&&d.indexOf('91')===0)d=d.slice(2);
   if(d.length===11&&d.charAt(0)==='0')d=d.slice(1);
   var ok=/^[6-9]\d{9}$/.test(d);
-  function goBack(e){if(e)e.preventDefault();try{window.close()}catch(_){}
+  var leaving=false;
+  function goBack(e,why){if(e)e.preventDefault();if(leaving)return;leaving=true;log('going back ('+(why||'button')+')');
+    try{window.close()}catch(_){}
     setTimeout(function(){if(history.length>1)history.back()},150)}
-  document.getElementById('back').addEventListener('click',goBack);
+  document.getElementById('back').addEventListener('click',function(e){goBack(e,'button')});
   if(!ok){n.textContent='No number';go.style.display='none';m.textContent='This page needs a valid 10-digit mobile number after the # in the address.';return}
   var t='tel:+91'+d;
   n.textContent=d.slice(0,5)+' '+d.slice(5);
   go.href=t;
-  setTimeout(function(){try{location.href=t}catch(_){}},150);
-  var hid=false;
-  document.addEventListener('visibilitychange',function(){
-    if(document.hidden){hid=true}else if(hid){setTimeout(function(){try{window.close()}catch(_){}},400)}
-  });
+  // the phone gives no "cancel" signal, so watch for the page being switched away from and returned to
+  var away=false;
+  function out(why){away=true;log('away: '+why)}
+  function back(why){log('back: '+why);if(away)setTimeout(function(){goBack(null,why)},350)}
+  window.addEventListener('blur',function(){out('blur')});
+  window.addEventListener('focus',function(){back('focus')});
+  window.addEventListener('pagehide',function(){out('pagehide')});
+  window.addEventListener('pageshow',function(e){back('pageshow')});
+  document.addEventListener('visibilitychange',function(){document.hidden?out('hidden'):back('visible')});
+  log('loaded, focus='+document.hasFocus()+' vis='+document.visibilityState);
+  setTimeout(function(){log('launching call');try{location.href=t}catch(_){}
+    if(FAST)setTimeout(function(){goBack(null,'fast')},900)},150);
 })();
 </script></body></html>
