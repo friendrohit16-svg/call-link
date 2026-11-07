@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>Call</title>
+<style>
+:root{--bg:#EAF2FA;--card:#fff;--ink:#263238;--mute:#5F6B72;--line:#E2E8EE;--blue:#0A4F8F;--amber:#B26B00;--green:#2E9E4F}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1a24;--card:#16252f;--ink:#e6eef4;--mute:#9db0bd;--line:#26384a;--blue:#7db7ef;--amber:#f0b24c;--green:#3aa865;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Carlito,Calibri,'Segoe UI',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.c{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px 22px;text-align:center;display:flex;flex-direction:column;gap:14px}
+.e{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.n{font-size:34px;font-weight:700;color:var(--blue);letter-spacing:.02em;user-select:all;-webkit-user-select:all}
+a.call{display:block;background:var(--green);color:#fff;font-weight:700;font-size:22px;text-decoration:none;border-radius:14px;padding:16px}
+a.back{display:block;color:var(--blue);font-weight:700;font-size:18px;text-decoration:none;border:1.5px solid var(--blue);border-radius:14px;padding:13px}
+p{margin:0;color:var(--mute);font-size:14px;line-height:1.4}
+a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+</style></head><body>
+<div class="c">
+  <div class="e">NTPC · EMPLOYEE CARD</div>
+  <div class="n" id="n"></div>
+  <a class="call" id="go" href="#">Call now</a>
+  <a class="back" id="back" href="#">‹ Back to card</a>
+  <p id="m">Your phone will ask to confirm the call. When done, tap Back to card.</p>
+</div>
+<script>
+(function(){
+  var d=(location.hash||'').replace(/\D/g,'');
+  var n=document.getElementById('n'),go=document.getElementById('go'),m=document.getElementById('m');
+  if(d.length===12&&d.indexOf('91')===0)d=d.slice(2);
+  if(d.length===11&&d.charAt(0)==='0')d=d.slice(1);
+  var ok=/^[6-9]\d{9}$/.test(d);
+  function goBack(e){if(e)e.preventDefault();try{window.close()}catch(_){}
+    setTimeout(function(){if(history.length>1)history.back()},150)}
+  document.getElementById('back').addEventListener('click',goBack);
+  if(!ok){n.textContent='No number';go.style.display='none';m.textContent='This page needs a valid 10-digit mobile number after the # in the address.';return}
+  var t='tel:+91'+d;
+  n.textContent=d.slice(0,5)+' '+d.slice(5);
+  go.href=t;
+  setTimeout(function(){try{location.href=t}catch(_){}},150);
+  var hid=false;
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){hid=true}else if(hid){setTimeout(function(){try{window.close()}catch(_){}},400)}
+  });
+})();
+</script></body></html>
