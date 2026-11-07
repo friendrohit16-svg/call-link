@@ -26,7 +26,7 @@ a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 </div>
 <script>
 (function(){
-  var q=location.search||'';var DBG=/[?&]d=1/.test(q),FAST=/[?&]fast=1/.test(q);
+  var q=location.search||'';var DBG=/[?&]d=1/.test(q),fm=/[?&]fast=(\d+)/.exec(q),FAST=fm?Math.max(80,parseInt(fm[1],10)):0;
   var d=(location.hash||'').replace(/\D/g,'');
   var n=document.getElementById('n'),go=document.getElementById('go'),m=document.getElementById('m');
   var logEl=null,t0=Date.now();
@@ -44,7 +44,6 @@ a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
   var t='tel:+91'+d;
   n.textContent=d.slice(0,5)+' '+d.slice(5);
   go.href=t;
-  // the phone gives no "cancel" signal, so watch for the page being switched away from and returned to
   var away=false;
   function out(why){away=true;log('away: '+why)}
   function back(why){log('back: '+why);if(away)setTimeout(function(){goBack(null,why)},350)}
@@ -54,7 +53,8 @@ a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
   window.addEventListener('pageshow',function(e){back('pageshow')});
   document.addEventListener('visibilitychange',function(){document.hidden?out('hidden'):back('visible')});
   log('loaded, focus='+document.hasFocus()+' vis='+document.visibilityState);
-  setTimeout(function(){log('launching call');try{location.href=t}catch(_){}
-    if(FAST)setTimeout(function(){goBack(null,'fast')},900)},150);
+  function launch(){log('launching call');try{location.href=t}catch(_){}
+    if(FAST)setTimeout(function(){goBack(null,'fast '+FAST+'ms')},FAST)}
+  if(FAST){document.documentElement.style.visibility='hidden';launch()}else setTimeout(launch,150);
 })();
 </script></body></html>
